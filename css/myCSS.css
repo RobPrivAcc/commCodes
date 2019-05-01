@@ -1,0 +1,67 @@
+@media screen and (max-width: 480px) {
+    .tableCellFontSize{
+    font-size:5px;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .tableCellFontSize{
+    font-size:10px;
+    }
+}
+
+@media screen and (max-width: 979px) {
+    .tableCellFontSize{
+    font-size:26px;
+    }
+}
+
+@media screen and (max-width: 980px) {
+  .tableCellFontSize{
+  font-size:30px;
+  }
+}
+
+#aislesNo{
+    width: 70px;
+}
+
+#eanSearch{
+    width: 145px;
+}
+
+.imageFill{
+    width: 100%;
+}
+
+label{
+    cursor: pointer;
+}
+
+.zebraOn{
+    background-color: #a9a9a9;
+    color: #F1F1F1;
+}
+
+.bottomLine{
+    border-bottom: solid 1px #343A3E;
+}
+
+.newDiv{
+    background: #BCE4FF;
+    color: #FFF;
+}
+
+.loading{
+  width: 100%;
+  
+}
+
+.loading > .spinner{
+    
+    margin: 0 auto;
+    min-width: 200px;
+    max-width: 400px;
+    padding: 100px;
+    
+}
