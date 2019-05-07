@@ -1,5 +1,5 @@
 <?php
-    class Supplier{
+    class upplier{
         
         private $pdo = null;
         private $arraySupplierList = array();

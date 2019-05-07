@@ -11,7 +11,6 @@ class xmlFile{
      }
      
      function saveNodeToFile($shopName,$newIp){
-
         $shopName = trim($shopName);
         $newIp = trim($newIp);
         echo $shopName.' - '.$newIp.'       ';

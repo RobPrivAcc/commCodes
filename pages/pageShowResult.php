@@ -23,7 +23,7 @@ require '..\class\classCreateExcel.php';
   $product = new Product($_POST['year'],$_POST['month']);
   
   $index = $db->getMaxIndex();
-  
+  echo $index;
  
   for($i=0; $i<$index;$i++){
     $product -> setConnectionString($db->getDbConnection($i));
