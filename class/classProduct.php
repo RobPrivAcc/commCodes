@@ -30,9 +30,10 @@
                 $this->pdo = new PDO($connArray["server"],$connArray["user"],$connArray["password"]);
             }catch(Exception $e){
                 //$this->petcoPDO  = new PDO("sqlsrv:Server=Server=192.168.1.2\SQLEXPRESS;Database=petshoptest","sa","SMITH09ALPHA");
+                echo "Using internal IP for: ".$connArray['shopName'];
                 $this->pdo = new PDO($connArray["localServer"],$connArray["user"],$connArray["password"]);
             }
-                            $this->shopName = $connArray['shopName'];
+                $this->shopName = $connArray['shopName'];
                 $this->shopNameArray[] = $this->shopName;
         }
         
