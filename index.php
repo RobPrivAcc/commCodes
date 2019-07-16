@@ -70,9 +70,13 @@ include("class/classXML.php");
                 </select>
             </div>
             
-            <div class="form-group col-lg-3">
+            <div class="form-group col-lg-2">
                 <button class="btn btn-primary" id="searchBtn">Create report</button>
             </div>
+
+            <div class="form-group col-lg-1">
+                <button class="btn btn-primary" id="searchBtnCsv">Create CSV</button>
+            </div>            
         </div>
 
         <div class="row">
@@ -115,17 +119,29 @@ include("class/classXML.php");
       });
     });
     
+    $( "#searchBtnCsv" ).click(function () {
+                
+      var spinner = '<Div class="text-center"><i class="fa fa-cog fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></DIV>';
+      $('#result').html(spinner);
+                
+      //$.post( "pages/pageShowResult.php", { year: $( "#yearList" ).val(), month: $( "#monthList" ).val() })
+       $.post( "pages/exportToCsv.php", { year: $( "#yearList" ).val(), month: $( "#monthList" ).val() })
+        .done(function( data ) {
+           $("#result").html(data);
+        });
+    });
+
     $( "#searchBtn" ).click(function () {
                 
       var spinner = '<Div class="text-center"><i class="fa fa-cog fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></DIV>';
       $('#result').html(spinner);
                 
-      $.post( "pages/pageShowResult.php", { year: $( "#yearList" ).val(), month: $( "#monthList" ).val() })
+      //$.post( "pages/pageShowResult.php", { year: $( "#yearList" ).val(), month: $( "#monthList" ).val() })
+       $.post( "pages/pageShowResult.php", { year: $( "#yearList" ).val(), month: $( "#monthList" ).val() })
         .done(function( data ) {
            $("#result").html(data);
         });
-    });
-          
+    });          
        
   </script>
     

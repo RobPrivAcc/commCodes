@@ -4,6 +4,7 @@
         private $pdo = null;
         private $array = array();
         private $arrayTaric = array();
+        private $arrayTaricCSV = array();
         private $date = null;
         private $dateStart = null;
         private $dateEnd = null;
@@ -79,9 +80,58 @@
             return $this->arrayTaric;
         }
         
+
+        private function setOrdersArrayCSV(){
+            
+            $query ="SELECT Distinct(RepOrderNo), repMain.Supplier as Supp, InvoiceRef FROM repMain
+                        LEFT JOIN actionLog ON [Action] = 'Replenishment Order INCREASED #'+cast(reporderno as varchar(255))
+                        INNER JOIN [Suppliers] ON [Suppliers].Supplier = repMain.Supplier
+                    WHERE DateTime > '$this->dateStart' and DateTime < '$this->dateEnd' and InvoiceRef not like '% > %' and PostCode = 'export' ORDER BY RepOrderNo ASC";
+            //echo $query.'<br/>';
+            $sql = $this->pdo->prepare($query);
+            $sql->execute();
+            
+            $counter = 0;
+                while($row = $sql->fetch()){
+                    $counter++;
+                   // echo $counter."  -  ".$this->shopName."<br/>";
+                    if($counter > 0){
+                        $this->array[$row["Supp"]][$this->shopName][] = array("orderNo" => $row["RepOrderNo"],"invoiceRef" => $row["InvoiceRef"],"shopName" =>$this->shopName);
+                        $this->setTaricCodesCSV($row["RepOrderNo"]);
+                    }
+                }
+                        //print_r($this->array);    
+            return $this->array;
+        }
+        
+        
+        
+        private function setTaricCodesCSV($order){
+            $subQuery = "SELECT [Code] ,sum([TotalAddedQuantity] * [Price]) AS totalLine
+                                        FROM [RepSub] 
+                                        INNER JOIN [Types] on TypeOfItem = [Type] AND [RepSub].[SubType] = [Types].[SubType]
+                                        WHERE OrderNo = '".$order."' group by Code";
+                    
+            $sqlSub = $this->pdo->prepare($subQuery);
+            $sqlSub->execute();
+                        
+                            
+            while($rowSub = $sqlSub->fetch()){
+                $this->arrayTaricCSV[$rowSub["Code"]][] = round($rowSub[1],2);
+            }
+            
+            return $this->arrayTaricCSV;
+        }
+        
+        
+        
         public function setData(){
             $this->setOrdersArray();
         }
+        
+        public function setDataCSV(){
+            $this->setOrdersArrayCSV();
+        }        
         
         public function returnOrderArray(){
             return $this->array;
@@ -89,6 +139,10 @@
         
         public function returnTaricArray(){
             return $this->arrayTaric;
+        }
+        
+        public function returnTaricArrayCSV(){
+            return $this->arrayTaricCSV;
         }
         
         public function returnShopNameArray(){
