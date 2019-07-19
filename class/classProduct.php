@@ -82,15 +82,15 @@
         public function setData(){
             $this->setOrdersArray();
         }
-        
+        //
         public function returnOrderArray(){
             return $this->array;
         }
-        
+        //
         public function returnTaricArray(){
             return $this->arrayTaric;
         }
-        
+        //
         public function returnShopNameArray(){
             return $this->shopNameArray;
         }
