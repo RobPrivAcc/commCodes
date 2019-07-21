@@ -9,6 +9,8 @@
         private $dateEnd = null;
         private $shopName = null;
         private $shopNameArray = array();
+        private $arr = array();
+        
        
         function __construct($year,$month){
             $this->dateStart = date ('Y-m-d', mktime(0, 0, 0, $month, 1, $year));;
@@ -39,7 +41,8 @@
         
         private function setOrdersArray(){
             
-            $query ="SELECT Distinct(RepOrderNo), repMain.Supplier as Supp, InvoiceRef FROM repMain
+            $query ="SELECT Distinct(RepOrderNo), repMain.Supplier as Supp, InvoiceRef,[Address],[UserDefinedField2]
+            FROM repMain
                         LEFT JOIN actionLog ON [Action] = 'Replenishment Order INCREASED #'+cast(reporderno as varchar(255))
                         INNER JOIN [Suppliers] ON [Suppliers].Supplier = repMain.Supplier
                     WHERE DateTime > '$this->dateStart' and DateTime < '$this->dateEnd' and InvoiceRef not like '% > %' and PostCode = 'export' ORDER BY RepOrderNo ASC";
@@ -52,7 +55,7 @@
                     $counter++;
                    // echo $counter."  -  ".$this->shopName."<br/>";
                     if($counter > 0){
-                        $this->array[$row["Supp"]][$this->shopName][] = array("orderNo" => $row["RepOrderNo"],"invoiceRef" => $row["InvoiceRef"],"shopName" =>$this->shopName);
+                        $this->array[$row["Supp"]][$this->shopName][] = array("orderNo" => $row["RepOrderNo"],"invoiceRef" => $row["InvoiceRef"],"shopName" =>$this->shopName, 'address' => $row["Address"], 'travel' => $row["UserDefinedField2"]);
                         $this->setTaricCodes($row["RepOrderNo"]);
                     }
                 }
@@ -77,6 +80,121 @@
             }
             
             return $this->arrayTaric;
+        }
+        
+        public function supp(){
+            $sql = "SELECT distinct(([RepMain].[Supplier])) as Suppl
+                    ,[Address]
+                    ,[UserDefinedField2]
+              FROM [RepMain] 
+                  inner join [Suppliers] on [Suppliers].Supplier = [RepMain].[Supplier]
+                  inner join [RepSub] on [RepOrderNo] = [OrderNo]
+                  iNNER JOIN [Types] on TypeOfItem = [Type] AND [RepSub].[SubType] = [Types].[SubType]
+              WHERE [StockUpdateDate] > '2019-01-01' and [StockUpdateDate] < '2019-01-10'
+              and  PostCode = 'export' and [TotalCheckedQuantity] >0 order by Suppl ASC";
+            
+            $sqlSub = $this->pdo->prepare($sql);
+            $sqlSub->execute();
+                        
+            $arr = array();
+            
+            $weight = 0;
+            $total = 0;
+            
+            $t = array();
+            
+            while($r = $sqlSub->fetch()){
+                //$t[] = $this->makeTarric($r['Suppl'],$r['Code']);
+                //$this->arr[$r['Suppl']] = array('address' => $r['Address'],
+                //                                'transport' => $r['UserDefinedField2'],
+                //                                'taric' => $t);
+                echo $r['Suppl'],' ', $r['Address'],' ', $r['UserDefinedField2'],'</br>';
+                
+               // echo '<pre>'.print_r($this->makeTarric($r['Suppl'])),'</pre><br/>';
+               $taric = $this->makeTarric($r['Suppl']);
+               
+               
+               foreach ($taric as $key => $value){
+                $weight = 0;
+                $totVal = 0;
+                for($i=0; $i <count($value); $i++){
+                    $weight = $weight + $value[$i]['weight'];
+                    $totVal = $totVal + $value[$i]['value'];
+                }
+                //echo $key,' ',var_dump($value).'<br/>';
+                
+                
+                $ta[] = array($key, $weight, $totVal);
+               }
+               $t[$r['Suppl']] = array('address'=>$r['Address'],
+                                        'transport'=>$r['UserDefinedField2'],
+                                        'codes' => $ta);
+                //$t[] = $this->makeTarric($r['Suppl'],$r['Code']);
+                //$this->arr[$r['Suppl']] = array('address' => $r['Address'],
+                //                                'transport' => $r['UserDefinedField2']);
+            } 
+             return $t; 
+        }
+        
+        public function makeTarric($supp){
+            $sql = "SELECT Code, (price * [TotalCheckedQuantity]) as total,[TotalCheckedQuantity],[Nameofitem]
+                    
+              FROM [RepMain] 
+                  inner join [Suppliers] on [Suppliers].Supplier = [RepMain].[Supplier]
+                  inner join [RepSub] on [RepOrderNo] = [OrderNo]
+                  iNNER JOIN [Types] on TypeOfItem = [Type] AND [RepSub].[SubType] = [Types].[SubType]
+              WHERE [StockUpdateDate] > '2019-01-01' 
+					and [StockUpdateDate] < '2019-01-10'
+					and  PostCode = 'export' and [TotalCheckedQuantity] >0
+                    
+					and [RepMain].[Supplier] = '{$supp}'
+					
+					order by Code ASC";
+            $sqlSub = $this->pdo->prepare($sql);
+            $sqlSub->execute();
+            $total = 0;
+            $weight = 0;
+            $t = array();
+            
+            while($r = $sqlSub->fetch()){
+                $weight = $this->getWeight($r['Nameofitem']) * $r['TotalCheckedQuantity'];
+                $total = $r['total'];
+                $t[$r['Code']][] = array('weight' => $weight,
+                                    'value' => $total);
+            }
+            
+            
+            $str = $weight.' '.$total;
+            return $t;
+            //$t[$code] = array('weight' => $weight,
+            //                    'value' => $total);
+            
+            //return $t;
+            
+            
+            
+        }
+        
+        public function getSup(){
+            return $this->arr;
+        }
+        
+        public function getWeight($string){
+            $pattern = '/\s(\(?[0-9]*\.?[0-9]+(kg|g)\)?)/';
+            
+           if(preg_match($pattern , $string, $array1) == 1){
+            
+            $weight = str_replace($array1[2],'',$array1[1]);
+            $weight = str_replace('(','',$weight);
+            $weight = str_replace(')','',$weight);
+            if($array1[2] == 'g'){
+                $weight = $weight/1000;
+            }
+           }else{
+            $weight = 1;
+           }
+
+            return $weight;
         }
         
         public function setData(){
