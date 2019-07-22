@@ -82,7 +82,62 @@
             return $this->arrayTaric;
         }
         
-        public function supp(){
+        //public function supp(){
+        //    $sql = "SELECT distinct(([RepMain].[Supplier])) as Suppl
+        //            ,[Address]
+        //            ,[UserDefinedField2]
+        //      FROM [RepMain] 
+        //          inner join [Suppliers] on [Suppliers].Supplier = [RepMain].[Supplier]
+        //          inner join [RepSub] on [RepOrderNo] = [OrderNo]
+        //          iNNER JOIN [Types] on TypeOfItem = [Type] AND [RepSub].[SubType] = [Types].[SubType]
+        //      WHERE [StockUpdateDate] > '{$this->dateStart}' and [StockUpdateDate] < '{$this->dateEnd}'
+        //      and  PostCode = 'export' and [TotalCheckedQuantity] >0 and InvoiceRef not like '% > %' order by Suppl ASC";
+        //    
+        //    $sqlSub = $this->pdo->prepare($sql);
+        //    $sqlSub->execute();
+        //                
+        //    $arr = array();
+        //    
+        //    $weight = 0;
+        //    $total = 0;
+        //    
+        //    $t = array();
+        //    
+        //    while($r = $sqlSub->fetch()){
+        //        //$t[] = $this->makeTarric($r['Suppl'],$r['Code']);
+        //        //$this->arr[$r['Suppl']] = array('address' => $r['Address'],
+        //        //                                'transport' => $r['UserDefinedField2'],
+        //        //                                'taric' => $t);
+        //       // echo $r['Suppl'],' ', $r['Address'],' ', $r['UserDefinedField2'],'</br>';
+        //        
+        //       // echo '<pre>'.print_r($this->makeTarric($r['Suppl'])),'</pre><br/>';
+        //       $taric = $this->makeTarric($r['Suppl']);
+        //       
+        //       
+        //       foreach ($taric as $key => $value){
+        //        $weight = 0;
+        //        $totVal = 0;
+        //        for($i=0; $i <count($value); $i++){
+        //            $weight = $weight + $value[$i]['weight'];
+        //            $totVal = $totVal + $value[$i]['value'];
+        //        }
+        //        //echo $key,' ',var_dump($value).'<br/>';
+        //        
+        //        
+        //        $ta[] = array($key, $weight, $totVal);
+        //       }
+        //       $t[$r['Suppl']] = array('address'=>$r['Address'],
+        //                                'transport'=>$r['UserDefinedField2'],
+        //                                'codes' => $ta);
+        //        //$t[] = $this->makeTarric($r['Suppl'],$r['Code']);
+        //        //$this->arr[$r['Suppl']] = array('address' => $r['Address'],
+        //        //                                'transport' => $r['UserDefinedField2']);
+        //    } 
+        //     return $t; 
+        //}
+        
+        
+    public function supp(){
             $sql = "SELECT distinct(([RepMain].[Supplier])) as Suppl
                     ,[Address]
                     ,[UserDefinedField2]
@@ -104,6 +159,7 @@
             $t = array();
             
             while($r = $sqlSub->fetch()){
+                
                 //$t[] = $this->makeTarric($r['Suppl'],$r['Code']);
                 //$this->arr[$r['Suppl']] = array('address' => $r['Address'],
                 //                                'transport' => $r['UserDefinedField2'],
@@ -113,6 +169,7 @@
                // echo '<pre>'.print_r($this->makeTarric($r['Suppl'])),'</pre><br/>';
                $taric = $this->makeTarric($r['Suppl']);
                
+               $ta = array();
                
                foreach ($taric as $key => $value){
                 $weight = 0;
@@ -124,7 +181,7 @@
                 //echo $key,' ',var_dump($value).'<br/>';
                 
                 
-                $ta[] = array($key, $weight, $totVal);
+                $ta[$key] = array('weight' => $weight, 'totalValue' => $totVal);
                }
                $t[$r['Suppl']] = array('address'=>$r['Address'],
                                         'transport'=>$r['UserDefinedField2'],
@@ -134,7 +191,7 @@
                 //                                'transport' => $r['UserDefinedField2']);
             } 
              return $t; 
-        }
+        }        
         
         public function makeTarric($supp){
             $sql = "SELECT Code, (price * [TotalCheckedQuantity]) as total,[TotalCheckedQuantity],[Nameofitem]
