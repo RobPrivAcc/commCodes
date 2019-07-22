@@ -78,12 +78,25 @@ function add($array,$key,$taricCode,$transport,$weight,$value){
 
   $csv = $header.$line;
   
-  
+$filename = $_POST['year'].'-'.$_POST['month'].'.csv';
+
 $directory = explode("\\",dirname(dirname(__FILE__)));
 //print_r($directory);
-$pathToFileCSV = dirname(pathinfo(__FILE__)['dirname']).'\\export\\'.$_POST['year'].'-'.$_POST['month'].'.csv';
+$pathToFileCSV = dirname(pathinfo(__FILE__)['dirname']).'\\export\\'.$filename;
 $myfile = fopen($pathToFileCSV, "w") or die("Unable to open file!");
 fwrite($myfile, $csv);
 fclose($myfile);
+
+
+$directory = explode("\\",dirname(dirname(__FILE__)));
+
+$pathToFile = dirname(pathinfo(__FILE__)['dirname']).'\\export\\'.$filename;
+
+if (file_exists($pathToFile)){
+    echo "Click to download <a href = '/".$directory[count($directory)-1]."/export/".$filename."'>".$filename."</a>";    
+}else{
+    echo "Ups.. something went wrong and file wasn't created. Contact Robert.";    
+}
+
   //$string = 'Bird Sand (tetra pack) 2kg';
   //echo $product->getWeight($string);
