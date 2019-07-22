@@ -120,7 +120,7 @@ include("class/classXML.php");
       var spinner = '<Div class="text-center"><i class="fa fa-cog fa-spin fa-3x fa-fw"></i><span class="sr-only">Loading...</span></DIV>';
       $('#result').html(spinner);
                 
-      $.post( "pages/pageShowResult.php", { year: $( "#yearList" ).val(), month: $( "#monthList" ).val() })
+      $.post( "pages/pageCsv.php", { year: $( "#yearList" ).val(), month: $( "#monthList" ).val() })
         .done(function( data ) {
            $("#result").html(data);
         });

@@ -90,8 +90,8 @@
                   inner join [Suppliers] on [Suppliers].Supplier = [RepMain].[Supplier]
                   inner join [RepSub] on [RepOrderNo] = [OrderNo]
                   iNNER JOIN [Types] on TypeOfItem = [Type] AND [RepSub].[SubType] = [Types].[SubType]
-              WHERE [StockUpdateDate] > '2019-01-01' and [StockUpdateDate] < '2019-01-10'
-              and  PostCode = 'export' and [TotalCheckedQuantity] >0 order by Suppl ASC";
+              WHERE [StockUpdateDate] > '{$this->dateStart}' and [StockUpdateDate] < '{$this->dateEnd}'
+              and  PostCode = 'export' and [TotalCheckedQuantity] >0 and InvoiceRef not like '% > %' order by Suppl ASC";
             
             $sqlSub = $this->pdo->prepare($sql);
             $sqlSub->execute();
@@ -108,7 +108,7 @@
                 //$this->arr[$r['Suppl']] = array('address' => $r['Address'],
                 //                                'transport' => $r['UserDefinedField2'],
                 //                                'taric' => $t);
-                echo $r['Suppl'],' ', $r['Address'],' ', $r['UserDefinedField2'],'</br>';
+               // echo $r['Suppl'],' ', $r['Address'],' ', $r['UserDefinedField2'],'</br>';
                 
                // echo '<pre>'.print_r($this->makeTarric($r['Suppl'])),'</pre><br/>';
                $taric = $this->makeTarric($r['Suppl']);
@@ -143,9 +143,9 @@
                   inner join [Suppliers] on [Suppliers].Supplier = [RepMain].[Supplier]
                   inner join [RepSub] on [RepOrderNo] = [OrderNo]
                   iNNER JOIN [Types] on TypeOfItem = [Type] AND [RepSub].[SubType] = [Types].[SubType]
-              WHERE [StockUpdateDate] > '2019-01-01' 
-					and [StockUpdateDate] < '2019-01-10'
-					and  PostCode = 'export' and [TotalCheckedQuantity] >0
+              WHERE [StockUpdateDate] > '{$this->dateStart}' 
+					and [StockUpdateDate] < '{$this->dateEnd}'
+					and  PostCode = 'export' and InvoiceRef not like '% > %' and [TotalCheckedQuantity] >0
                     
 					and [RepMain].[Supplier] = '{$supp}'
 					
