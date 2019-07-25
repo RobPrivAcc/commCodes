@@ -160,14 +160,7 @@
             
             while($r = $sqlSub->fetch()){
                 
-                //$t[] = $this->makeTarric($r['Suppl'],$r['Code']);
-                //$this->arr[$r['Suppl']] = array('address' => $r['Address'],
-                //                                'transport' => $r['UserDefinedField2'],
-                //                                'taric' => $t);
-               // echo $r['Suppl'],' ', $r['Address'],' ', $r['UserDefinedField2'],'</br>';
-                
-               // echo '<pre>'.print_r($this->makeTarric($r['Suppl'])),'</pre><br/>';
-               $taric = $this->makeTarric($r['Suppl']);
+               $taric = $this->makeTarric($r['Address']);
                
                $ta = array();
                
@@ -183,8 +176,7 @@
                 
                 $ta[$key] = array('weight' => $weight, 'totalValue' => $totVal);
                }
-               $t[$r['Suppl']] = array('address'=>$r['Address'],
-                                        'transport'=>$r['UserDefinedField2'],
+               $t[$r['Address']] = array('transport'=>$r['UserDefinedField2'],
                                         'codes' => $ta);
                 //$t[] = $this->makeTarric($r['Suppl'],$r['Code']);
                 //$this->arr[$r['Suppl']] = array('address' => $r['Address'],
@@ -193,7 +185,7 @@
              return $t; 
         }        
         
-        public function makeTarric($supp){
+        public function makeTarric($address){
             $sql = "SELECT Code, (price * [TotalCheckedQuantity]) as total,[TotalCheckedQuantity],[Nameofitem]
                     
               FROM [RepMain] 
@@ -204,7 +196,7 @@
 					and [StockUpdateDate] < '{$this->dateEnd}'
 					and  PostCode = 'export' and InvoiceRef not like '% > %' and [TotalCheckedQuantity] >0
                     
-					and [RepMain].[Supplier] = '{$supp}'
+					and [Address] = '{$address}'
 					
 					order by Code ASC";
             $sqlSub = $this->pdo->prepare($sql);
@@ -221,7 +213,7 @@
             }
             
             
-            $str = $weight.' '.$total;
+           
             return $t;
             //$t[$code] = array('weight' => $weight,
             //                    'value' => $total);
