@@ -167,14 +167,17 @@
                foreach ($taric as $key => $value){
                 $weight = 0;
                 $totVal = 0;
+                $totQty = 0;
+                
                 for($i=0; $i <count($value); $i++){
                     $weight = $weight + $value[$i]['weight'];
                     $totVal = $totVal + $value[$i]['value'];
+                    $totQty = $totQty + $value[$i]['qty'];
                 }
                 //echo $key,' ',var_dump($value).'<br/>';
                 
                 
-                $ta[$key] = array('weight' => $weight, 'totalValue' => $totVal);
+                $ta[$key] = array('weight' => $weight, 'totalValue' => $totVal, 'qty' => $totQty);
                }
                $t[$r['Address']] = array('transport'=>$r['UserDefinedField2'],
                                         'codes' => $ta);
@@ -209,7 +212,8 @@
                 $weight = $this->getWeight($r['Nameofitem']) * $r['TotalCheckedQuantity'];
                 $total = $r['total'];
                 $t[$r['Code']][] = array('weight' => $weight,
-                                    'value' => $total);
+                                         'value' => $total,
+                                         'qty' => $r['TotalCheckedQuantity']);
             }
             
             

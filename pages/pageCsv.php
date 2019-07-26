@@ -2,7 +2,8 @@
 include('..\class\classDisplayResult.php');
 include('..\class\classProduct.php');
 include('..\class\classDB.php');
-include('..\class\classXML.php');    
+include('..\class\classXML.php');
+include('..\class\classTaric.php');    
 
     $xml = new xmlFile($_SERVER["DOCUMENT_ROOT"].'/dbXML.xml');
     $db = new dbConnection($xml->getConnectionArray());
@@ -21,49 +22,56 @@ include('..\class\classXML.php');
     
     $tArray = array();
     
+    $taric = new Taric;
+    
     for($i=0; $i<count($t); $i++){
       foreach($t[$i] as $key => $value){
        
         $tArray[$key] = array('transport' => $value['transport']);
         
-        $stat = array('weight'=> 0,
-                       'total' => 0);
-        
-       // echo $key.'  '.$value['transport'].'<br/>';
-       $taric = array();
-       //echo '<pre>',print_r($value['codes']),'</br>';
-       
+      
         foreach($value['codes'] as $code => $data){
-          //$code = substr($code, 0, -2);
-          if(!isset($tArray[$key]['code'][$code]['weight'])){
-            $tArray[$key]['code'][$code]['weight'] = 0;
-            $tArray[$key]['code'][$code]['total'] = 0;
-          }else{
-            $tArray[$key]['code'][$code]['weight'] += $data['weight'];
-           $tArray[$key]['code'][$code]['total'] += $data['totalValue'];
-          }
-          
-          if($code == '0208909800'){
-            echo '<pre>',print_r($tArray[$key]['code'][$code]),'</pre>';
-            echo 'Weight: ',$data['weight'],' Total: ',$data['totalValue'],'<br/>';
-          }
-          //$stat['weight'] += $data['weight'];
-          //$stat['total'] += $data['totalValue'];
-          //
-          // $taric[$code] = $stat;
-           //echo $key,' ',$code,'<br/>';
-        //echo '<pre>',print_r($data),'</pre>';   
-          $tArray[$key]['code'][$code]['weight'] += $data['weight'];
-          $tArray[$key]['code'][$code]['total'] += $data['totalValue'];
-         
-          $line .= $code.",".$key.",".$key.",".$value['transport'].",1,".$data['weight'].",".$data['totalValue']."\r\n";
+    
+            $taric->setCountry($key)->setCode($code)->setWeight($data['weight'])->setValue($data['totalValue'])->setQty($data['qty'])->setTransport('1')->setArray();
+            //$line .= $code.",".$key.",".$key.",".$value['transport'].",1,".$data['weight'].",".$data['totalValue']."\r\n";
+            
         }
        // $tArray[$key]['code'] = $taric;
         //echo '<pre>',print_r($value),'</pre>';
       }
     }
+    $tArray = $taric->getArray();
+   // echo '<pre>',print_r($taric->getArray()),'</pre>';
+   
+   foreach($tArray as $country => $data){
     
-echo '<pre>',print_r($tArray),'</pre>';
+    //echo $key."<br/>";
+    //echo '<pre>',print_r($data).'</pre>';
+    $transport = $data['transport'];
+    
+        foreach($data['code'] as $k => $v){
+            //echo '<pre>',print_r($k),'</pre>';
+            $weight = $v['weight'];
+            if($weight < 1){
+                $weight = 1;
+            }
+            
+            $taricCode = $k;
+            
+            if(strlen($taricCode) == 10){
+                $taricCode = substr($taricCode,0,-2);
+            }
+            
+           $line .= $taricCode.",".$country.",".$country.",".$transport.",1,".$weight.",".$v['qty'].",".$v['value']."\r\n";
+            //$line .= $code.",".$key.",".$key.",".$v['transport'].",1,".$v['weight'].",".$v['totalValue']."\r\n";
+        }
+    
+   }
+   echo '<br/><br/><br/><br/>-----------------------------------------<br/><br/><br/>';
+   echo '<pre>',print_r($tArray),'</pre>';
+
+
+//echo '<pre>',print_r($tArray),'</pre>';
 
  
     
@@ -75,7 +83,7 @@ echo '<pre>',print_r($tArray),'</pre>';
 //$header = "Commodity code,Country of Consignment,Country of Origin,Nature of Transaction,Invoice Value Euro,Net Mass\r\n";
 //
 //
-  $csv = $header.$line;
+  $csv = $line;
   
 $filename = $_POST['year'].'-'.$_POST['month'].'.csv';
 
