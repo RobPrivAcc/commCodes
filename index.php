@@ -1,11 +1,10 @@
 <?php
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL & ~E_NOTICE);
-include('class\classDisplayResult.php');
-include('class\classProduct.php');
-include('class\classDB.php');
-include("class/classXML.php");
+  ini_set('display_errors', 1);
+  ini_set('display_startup_errors', 1);
+  error_reporting(E_ALL & ~E_NOTICE);
+  
+  include("class/classXML.php");
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -128,10 +127,5 @@ include("class/classXML.php");
           
        
   </script>
-    
- <!-- echo '<input type="hidden" id="orderArray" value="'.$product->returnOrderArray.'">';
-    echo '<input type="hidden" id="taricArray" value="'.$product->returnTaricArray.'">';
-    echo '<input type="hidden" id="shopName" value="'.$product->returnShopNameArray.'">';
-  -->
-  </body>
+ </body>
 </html>
