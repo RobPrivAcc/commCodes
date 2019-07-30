@@ -15,7 +15,7 @@ include('..\class\classTaric.php');
     $index = $db->getMaxIndex();
 
     $i=0;
-    while($i < $index-1){
+    while($i < $index){
         $product -> setConnectionString($db->getDbConnection($i));
         $t[] = $product -> supp();
         $i++;
