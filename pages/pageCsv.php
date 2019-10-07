@@ -53,8 +53,9 @@ include('..\class\classTaric.php');
             if(strlen($taricCode) == 10){
                 $taricCode = substr($taricCode,0,-2);
             }
-            
-           $line .= $taricCode.",".$country.",".$country.",".$transport.",1,".$weight.",".$v['qty'].",".$v['value']."\r\n";
+            if($v['value'] > 0){
+                $line .= $taricCode.",".$country.",".$country.",".$transport.",1,".$weight.",".$v['qty'].",".$v['value']."\r\n";    
+            }
         }
     }
 
